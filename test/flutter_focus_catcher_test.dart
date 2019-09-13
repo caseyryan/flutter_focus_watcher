@@ -4,6 +4,6 @@ import 'package:flutter_focus_catcher/flutter_focus_catcher.dart';
 
 void main() {
   test('adds one to input values', () {
-    
+
   });
 }
