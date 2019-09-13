@@ -1,5 +1,5 @@
-name: flutter_focus_catcher
-description: A hack to mKe flutter built-in TextFields lose focus there a user taps on something else
+name: flutter_focus_watcher
+description: A new Flutter package.
 version: 0.0.1
 author:
 homepage:
