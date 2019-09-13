@@ -35,6 +35,8 @@ class MyApp extends StatelessWidget {
 ...
 ```  
 And it will do the rest. 
+
+
 ![alt gif](https://github.com/caseyryan/flutter_focus_catcher/blob/master/example/focus_watcher.gif?raw=true)
 
 
