@@ -1,9 +1,20 @@
 ## Flutter Focus Watcher
-A simple hacky library used to "unfocus" Flutter's built-in TextFields and hide a software keyboard
-when a user taps on empty space or some other Widget that is not another TextField.
-For some reason, this basic functionality isn't supported by Flutter out of the box, which is kind of  
-frustrating. So, as a temporary solution one might use my library. I hope Flutter team will add this
-feature natively in future releases
+
+This widget is used to remove TextField focus if a tap occured somewhere else
+In order for this to work properly, it must be placed inside MaterialApp or
+WidgetsApp. This is necessary because this widget requires MediaQuery,
+which is supplied by those two
+Basically, your app build method should look like this
+
+The widget will also keep track of a keyboard space and move the whole
+application up if a focused TextField gets obscured by the keyboard
+The only additional thing you need to do for it is
+to set your Scaffold's resizeToAvoidBottomInset to false
+(in case you use scaffold) and that's it.
+If you want to change the height of application lift, simply set your
+preferred value to the FocusWatcher's liftOffset variable.
+The default value is 15.0. This means the number of points above the
+keyboard's upper bound
 
 
 It's very easy to use. You may add it as a library or simply copy 
@@ -20,33 +31,45 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return FocusWatcher(
-      child: MaterialApp(
-        title: 'Flutter Demo',
+   Widget build(BuildContext context) {
+      return MaterialApp(
+        title: 'Demo app',
         theme: ThemeData(
-          primarySwatch: Colors.green,
+          primarySwatch: Colors.blue,
         ),
-        home: MyHomePage(title: 'Focus watcher test'),
-      ),
-    );
-  }
+        home: FocusWatcher(
+            child: MyHomePage(title: 'Flutter Demo Home Page')
+        ),
+      );
+    }
 }
-...
+// don't forget about this, if you use a scaffold 
+ @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      ...
+    )
+  }
+
 ```  
 And it will do the rest. 
 
 
-![alt gif](https://github.com/caseyryan/flutter_focus_catcher/blob/master/example/focus_watcher.gif?raw=true)
+![alt watcher](https://github.com/caseyryan/images/blob/master/focus_watcher.gif?raw=true)
+
+And here is how it handles the keyboard
+
+![alt keyboard](https://github.com/caseyryan/images/blob/master/keyboard%20avoider.gif?raw=true)
 
 
 In case you want to exclude some widget from this workflow, simply wrap that widget with 
 ```dart
 @override
 Widget build(BuildContext context) {
-return IgnoreFocusWatcher(
-  child: ...your widget
-);
+    return IgnoreFocusWatcher(
+      child: ...your widget
+    );
 }
 ```
 And this widget will be ignored by FocusWatcher
