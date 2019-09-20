@@ -20,7 +20,8 @@ keyboard's upper bound
 It's very easy to use. You may add it as a library or simply copy 
 *flutter_focus_watcher.dart* into your project. It doesn't have any external dependencies
 
-Then simply wrap your whole app with FocusWatcher widget like this:
+Then simply do this. Notice that FocusWatcher is inside MaterialApp. That's because it inherits
+MediaQuery from that 
 
 ```dart 
 import 'package:flutter/material.dart';
