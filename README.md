@@ -3,10 +3,9 @@
 This widget is used to remove TextField focus if a tap occured somewhere else
 In order for this to work properly, it must be placed inside MaterialApp or
 WidgetsApp. This is necessary because this widget requires MediaQuery,
-which is supplied by those two
-Basically, your app build method should look like this
+which is supplied by those two.
 
-The widget will also keep track of a keyboard space and move the whole
+The widget also keeps track of a keyboard space and moves the whole
 application up if a focused TextField gets obscured by the keyboard
 The only additional thing you need to do for it is
 to set your Scaffold's resizeToAvoidBottomInset to false
@@ -16,7 +15,7 @@ preferred value to the FocusWatcher's liftOffset variable.
 The default value is 15.0. This means the number of points above the
 keyboard's upper bound
 
-
+##Example
 It's very easy to use. You may add it as a library or simply copy 
 *flutter_focus_watcher.dart* into your project. It doesn't have any external dependencies
 
