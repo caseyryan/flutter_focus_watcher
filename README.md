@@ -15,7 +15,8 @@ preferred value to the FocusWatcher's liftOffset variable.
 The default value is 15.0. This means the number of points above the
 keyboard's upper bound
 
-##Example
+## Example
+
 It's very easy to use. You may add it as a library or simply copy 
 *flutter_focus_watcher.dart* into your project. It doesn't have any external dependencies
 
