@@ -68,6 +68,7 @@ import 'dart:math';
  *
  */
 
+
 class FocusWatcher extends StatefulWidget {
   final Widget child;
   final double liftOffset;
@@ -121,7 +122,10 @@ class _FocusWatcherState extends State<FocusWatcher> with SingleTickerProviderSt
 
                 if (keyboardHeight > 0.0) {
                   if (textFieldBottom > 0.0) {
-                    _moveScreen(textFieldBottom, keyboardHeight + widget.liftOffset, viewportConstraints.maxHeight);
+                    _moveScreen(
+                        textFieldBottom,
+                        keyboardHeight + widget.liftOffset,
+                        viewportConstraints.maxHeight);
                     textFieldBottom = 0.0;
                   }
                 } else {
@@ -148,7 +152,11 @@ class _FocusWatcherState extends State<FocusWatcher> with SingleTickerProviderSt
                         return;
                       }
                       var isEditable = result.path.any(
-                              (entry) => entry.target.runtimeType == RenderEditable);
+                              (entry) =>
+                          entry.target.runtimeType == RenderEditable ||
+                              entry.target.runtimeType == RenderParagraph ||
+                              entry.target.runtimeType == FocusWatcherForceRenderBox
+                      );
 
                       var currentFocus = FocusScope.of(context);
                       if (!isEditable) {
@@ -158,7 +166,12 @@ class _FocusWatcherState extends State<FocusWatcher> with SingleTickerProviderSt
                         }
                       } else {
                         for (var entry in result.path) {
-                          if (entry.target.runtimeType == RenderEditable) {
+                          var isEditable =
+                              entry.target.runtimeType == RenderEditable ||
+                                  entry.target.runtimeType == RenderParagraph ||
+                                  entry.target.runtimeType == FocusWatcherForceRenderBox;
+
+                          if (isEditable) {
                             var renderBox = (entry.target as RenderBox);
                             Offset offset = renderBox.localToGlobal(defaultOffset);
                             textFieldBottom = offset.dy + renderBox.size.height - pageY;
@@ -217,4 +230,20 @@ class IgnoreFocusWatcher extends SingleChildRenderObjectWidget {
   }
 }
 
+// if you want to force focus on some widget, wrap it with this one
+class ForceFocusWatcher extends SingleChildRenderObjectWidget {
+  final Widget child;
+
+  ForceFocusWatcher({@required this.child}) : super(child: child);
+
+  @override
+  FocusWatcherForceRenderBox createRenderObject(BuildContext context) {
+    return FocusWatcherForceRenderBox();
+  }
+}
+
 class FocusWatcherIgnoreRenderBox extends RenderPointerListener {}
+class FocusWatcherForceRenderBox extends RenderPointerListener {}
+
+
+

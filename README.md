@@ -23,6 +23,9 @@ It's very easy to use. You may add it as a library or simply copy
 Then simply do this. Notice that FocusWatcher is inside MaterialApp. That's because it inherits
 MediaQuery from that 
 
+IMPORTANT! You must wrap every scaffold for every page where you want this functionality with 
+this FocusWatcher
+
 ```dart 
 import 'package:flutter/material.dart';
 import 'package:flutter_focus_watcher/flutter_focus_watcher.dart';
@@ -69,8 +72,21 @@ In case you want to exclude some widget from this workflow, simply wrap that wid
 @override
 Widget build(BuildContext context) {
     return IgnoreFocusWatcher(
-      child: ...your widget
+      child: TextField("I will be ignored by FocusWatcher")
     );
 }
 ```
 And this widget will be ignored by FocusWatcher
+
+There may also be some cases when a TextField (like material text field) 
+does not apply a RenderEditable or RenderParagraph thus making this plugin useless. 
+You can simply fix it by wrapping the TextField in a ForceFocusWatcher() widget. That's it 
+
+```dart
+@override
+Widget build(BuildContext context) {
+    return ForceFocusWatcher(
+      child: TextField("I'm forced to activate focus watcher")
+    );
+}
+```
