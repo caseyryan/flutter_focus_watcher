@@ -23,8 +23,7 @@ It's very easy to use. You may add it as a library or simply copy
 Then simply do this. Notice that FocusWatcher is inside MaterialApp. That's because it inherits
 MediaQuery from that 
 
-IMPORTANT! You must wrap every scaffold for every page where you want this functionality with 
-this FocusWatcher
+IMPORTANT! You must wrap with the FocusWatcher every scaffold where you want this functionality
 
 ```dart 
 import 'package:flutter/material.dart';
@@ -41,19 +40,21 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: FocusWatcher(
-            child: MyHomePage(title: 'Flutter Demo Home Page')
-        ),
+        home: MyHomePage(title: 'Flutter Demo Home Page')
       );
     }
 }
-// don't forget about this, if you use a scaffold 
+
  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      ...
-    )
+    return FocusWatcher(
+        child: Scaffold(
+         // don't forget about this
+         resizeToAvoidBottomInset: false,
+         ...
+       )
+    );
+     
   }
 
 ```  
