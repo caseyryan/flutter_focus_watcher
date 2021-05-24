@@ -21,9 +21,10 @@ THE SOFTWARE.
 
 library flutter_focus_watcher;
 
+import 'dart:math';
+
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'dart:math';
 
 /*
  * This widget is used to remove TextField focus if a tap occured somewhere else
@@ -69,11 +70,12 @@ class FocusWatcher extends StatefulWidget {
   final Curve animationCurve;
   final Duration animationDuration;
 
-  FocusWatcher(
-      {required this.child,
-      this.liftOffset = 15.0,
-      this.animationCurve = Curves.easeIn,
-      this.animationDuration = const Duration(milliseconds: 300)});
+  FocusWatcher({
+    required this.child,
+    this.liftOffset = 15.0,
+    this.animationCurve = Curves.easeIn,
+    this.animationDuration = const Duration(milliseconds: 300),
+  });
 
   @override
   _FocusWatcherState createState() => _FocusWatcherState();
@@ -98,7 +100,11 @@ class _FocusWatcherState extends State<FocusWatcher>
       upperBound: 1.0,
     );
     _animation = Tween(begin: 0.0, end: 0.0).animate(
-        CurvedAnimation(parent: _controller!, curve: widget.animationCurve));
+      CurvedAnimation(
+        parent: _controller!,
+        curve: widget.animationCurve,
+      ),
+    );
     super.initState();
   }
 
@@ -108,7 +114,11 @@ class _FocusWatcherState extends State<FocusWatcher>
       animation: _animation!,
       builder: (c, w) {
         return Transform(
-          transform: Matrix4.translationValues(0, _animation!.value, 0),
+          transform: Matrix4.translationValues(
+            0,
+            _animation!.value,
+            0,
+          ),
           child: LayoutBuilder(
               builder: (BuildContext c, BoxConstraints viewportConstraints) {
             var keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
@@ -184,7 +194,10 @@ class _FocusWatcherState extends State<FocusWatcher>
   }
 
   void _moveScreen(
-      double textFieldBottom, double keyboardHeight, double screenHeight) {
+    double textFieldBottom,
+    double keyboardHeight,
+    double screenHeight,
+  ) {
     double newPageY = 0.0;
 
     if (keyboardHeight > 0.0) {
@@ -195,10 +208,18 @@ class _FocusWatcherState extends State<FocusWatcher>
     Future.delayed(Duration(milliseconds: 15), () {
       setState(() {
         if (pageY != newPageY) {
-          _animation = Tween(begin: pageY, end: newPageY).animate(
-              CurvedAnimation(
-                  parent: _controller!, curve: widget.animationCurve));
-          _controller!.forward(from: 0);
+          _animation = Tween(
+            begin: pageY,
+            end: newPageY,
+          ).animate(
+            CurvedAnimation(
+              parent: _controller!,
+              curve: widget.animationCurve,
+            ),
+          );
+          _controller!.forward(
+            from: 0,
+          );
         }
 
         pageY = newPageY;
@@ -216,10 +237,16 @@ class _FocusWatcherState extends State<FocusWatcher>
 class IgnoreFocusWatcher extends SingleChildRenderObjectWidget {
   final Widget child;
 
-  IgnoreFocusWatcher({required this.child}) : super(child: child);
+  IgnoreFocusWatcher({
+    required this.child,
+  }) : super(
+          child: child,
+        );
 
   @override
-  FocusWatcherIgnoreRenderBox createRenderObject(BuildContext context) {
+  FocusWatcherIgnoreRenderBox createRenderObject(
+    BuildContext context,
+  ) {
     return FocusWatcherIgnoreRenderBox();
   }
 }
