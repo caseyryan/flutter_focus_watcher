@@ -1,11 +1,11 @@
 name: flutter_focus_watcher
 description: A new Flutter package.
-version: 0.0.1
+version: 0.0.2
 author: Serov Konstantin
 homepage: https://github.com/caseyryan/flutter_focus_watcher
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">2.12.0"
 
 dependencies:
   flutter:

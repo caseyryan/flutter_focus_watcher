@@ -1,20 +1,15 @@
 /*
 (c) Copyright 2019 Serov Konstantin.
-
 Licensed under the MIT license:
-
     http://www.opensource.org/licenses/mit-license.php
-
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
-
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -68,33 +63,31 @@ import 'dart:math';
  *
  */
 
-
 class FocusWatcher extends StatefulWidget {
   final Widget child;
   final double liftOffset;
   final Curve animationCurve;
   final Duration animationDuration;
 
-  FocusWatcher({
-    @required this.child,
-    this.liftOffset = 15.0,
-    this.animationCurve = Curves.easeIn,
-    this.animationDuration = const Duration(milliseconds: 300)
-  });
+  FocusWatcher(
+      {required this.child,
+      this.liftOffset = 15.0,
+      this.animationCurve = Curves.easeIn,
+      this.animationDuration = const Duration(milliseconds: 300)});
 
   @override
   _FocusWatcherState createState() => _FocusWatcherState();
 }
 
-class _FocusWatcherState extends State<FocusWatcher> with SingleTickerProviderStateMixin {
-
+class _FocusWatcherState extends State<FocusWatcher>
+    with SingleTickerProviderStateMixin {
   final Offset defaultOffset = Offset(0, 0);
   double pageY = 0;
   double reverseFrom = 0;
   double textFieldBottom = 0.0;
-  AnimationController _controller;
-  Animation<double> _animation;
-  RenderBox lastRenderBox;
+  AnimationController? _controller;
+  Animation<double>? _animation;
+  RenderBox? lastRenderBox;
 
   @override
   void initState() {
@@ -105,98 +98,97 @@ class _FocusWatcherState extends State<FocusWatcher> with SingleTickerProviderSt
       upperBound: 1.0,
     );
     _animation = Tween(begin: 0.0, end: 0.0).animate(
-        CurvedAnimation(parent: _controller, curve: widget.animationCurve));
+        CurvedAnimation(parent: _controller!, curve: widget.animationCurve));
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _animation,
+      animation: _animation!,
       builder: (c, w) {
         return Transform(
-          transform: Matrix4.translationValues(0, _animation.value, 0),
+          transform: Matrix4.translationValues(0, _animation!.value, 0),
           child: LayoutBuilder(
               builder: (BuildContext c, BoxConstraints viewportConstraints) {
-                var keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+            var keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
-                if (keyboardHeight > 0.0) {
-                  if (textFieldBottom > 0.0) {
-                    _moveScreen(
-                        textFieldBottom,
-                        keyboardHeight + widget.liftOffset,
-                        viewportConstraints.maxHeight);
-                    textFieldBottom = 0.0;
-                  }
-                } else {
-                  if (pageY != 0.0) {
-                    _moveScreen(0, 0, 0);
-                    textFieldBottom = 0.0;
-                  }
-                }
-                return ConstrainedBox(
-                  constraints: BoxConstraints(
-                      maxWidth: viewportConstraints.maxWidth,
-                      maxHeight: viewportConstraints.maxHeight
-                  ),
-                  child: Listener(
-                    onPointerUp: (e) {
-                      var rb = context.findRenderObject() as RenderBox;
-                      var result = BoxHitTestResult();
-                      rb.hitTest(result, position: e.position);
+            if (keyboardHeight > 0.0) {
+              if (textFieldBottom > 0.0) {
+                _moveScreen(textFieldBottom, keyboardHeight + widget.liftOffset,
+                    viewportConstraints.maxHeight);
+                textFieldBottom = 0.0;
+              }
+            } else {
+              if (pageY != 0.0) {
+                _moveScreen(0, 0, 0);
+                textFieldBottom = 0.0;
+              }
+            }
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                  maxWidth: viewportConstraints.maxWidth,
+                  maxHeight: viewportConstraints.maxHeight),
+              child: Listener(
+                onPointerUp: (e) {
+                  var rb = context.findRenderObject() as RenderBox;
+                  var result = BoxHitTestResult();
+                  rb.hitTest(result, position: e.position);
 
-                      // if there any widget in the path that must ignore taps,
-                      // stop it right here
-                      if (result.path.any((entry) =>
-                      entry.target.runtimeType == FocusWatcherIgnoreRenderBox)) {
-                        return;
-                      }
-                      var isEditable = result.path.any(
-                              (entry) =>
+                  // if there any widget in the path that must ignore taps,
+                  // stop it right here
+                  if (result.path.any((entry) =>
+                      entry.target.runtimeType ==
+                      FocusWatcherIgnoreRenderBox)) {
+                    return;
+                  }
+                  var isEditable = result.path.any((entry) =>
+                      entry.target.runtimeType == RenderEditable ||
+                      entry.target.runtimeType == RenderParagraph ||
+                      entry.target.runtimeType == FocusWatcherForceRenderBox);
+
+                  var currentFocus = FocusScope.of(context);
+                  if (!isEditable) {
+                    if (!currentFocus.hasPrimaryFocus) {
+                      currentFocus.unfocus();
+                      lastRenderBox = null;
+                    }
+                  } else {
+                    for (var entry in result.path) {
+                      var isEditable =
                           entry.target.runtimeType == RenderEditable ||
                               entry.target.runtimeType == RenderParagraph ||
-                              entry.target.runtimeType == FocusWatcherForceRenderBox
-                      );
+                              entry.target.runtimeType ==
+                                  FocusWatcherForceRenderBox;
 
-                      var currentFocus = FocusScope.of(context);
-                      if (!isEditable) {
-                        if (!currentFocus.hasPrimaryFocus) {
-                          currentFocus.unfocus();
-                          lastRenderBox = null;
-                        }
-                      } else {
-                        for (var entry in result.path) {
-                          var isEditable =
-                              entry.target.runtimeType == RenderEditable ||
-                                  entry.target.runtimeType == RenderParagraph ||
-                                  entry.target.runtimeType == FocusWatcherForceRenderBox;
-
-                          if (isEditable) {
-                            var renderBox = (entry.target as RenderBox);
-                            Offset offset = renderBox.localToGlobal(defaultOffset);
-                            textFieldBottom = offset.dy + renderBox.size.height - pageY;
-                            if (lastRenderBox != renderBox) {
-                              setState(() { });
-                              lastRenderBox = renderBox;
-                            }
-                          }
+                      if (isEditable) {
+                        var renderBox = (entry.target as RenderBox);
+                        Offset offset = renderBox.localToGlobal(defaultOffset);
+                        textFieldBottom =
+                            offset.dy + renderBox.size.height - pageY;
+                        if (lastRenderBox != renderBox) {
+                          setState(() {});
+                          lastRenderBox = renderBox;
                         }
                       }
-                    },
-                    child: widget.child,
-                  ),
-                );
-              }),
+                    }
+                  }
+                },
+                child: widget.child,
+              ),
+            );
+          }),
         );
       },
     );
   }
 
-  void _moveScreen(double textFieldBottom, double keyboardHeight, double screenHeight) {
+  void _moveScreen(
+      double textFieldBottom, double keyboardHeight, double screenHeight) {
     double newPageY = 0.0;
 
     if (keyboardHeight > 0.0) {
-      newPageY =  min(0, (screenHeight - textFieldBottom) - keyboardHeight);
+      newPageY = min(0, (screenHeight - textFieldBottom) - keyboardHeight);
       //print("DIST TO PASS ${newPageY}");
     }
 
@@ -204,14 +196,16 @@ class _FocusWatcherState extends State<FocusWatcher> with SingleTickerProviderSt
       setState(() {
         if (pageY != newPageY) {
           _animation = Tween(begin: pageY, end: newPageY).animate(
-              CurvedAnimation(parent: _controller, curve: widget.animationCurve));
-          _controller.forward(from: 0);
+              CurvedAnimation(
+                  parent: _controller!, curve: widget.animationCurve));
+          _controller!.forward(from: 0);
         }
 
         pageY = newPageY;
       });
     });
   }
+
   @override
   void dispose() {
     _controller?.dispose();
@@ -222,7 +216,7 @@ class _FocusWatcherState extends State<FocusWatcher> with SingleTickerProviderSt
 class IgnoreFocusWatcher extends SingleChildRenderObjectWidget {
   final Widget child;
 
-  IgnoreFocusWatcher({@required this.child}) : super(child: child);
+  IgnoreFocusWatcher({required this.child}) : super(child: child);
 
   @override
   FocusWatcherIgnoreRenderBox createRenderObject(BuildContext context) {
@@ -234,7 +228,7 @@ class IgnoreFocusWatcher extends SingleChildRenderObjectWidget {
 class ForceFocusWatcher extends SingleChildRenderObjectWidget {
   final Widget child;
 
-  ForceFocusWatcher({@required this.child}) : super(child: child);
+  ForceFocusWatcher({required this.child}) : super(child: child);
 
   @override
   FocusWatcherForceRenderBox createRenderObject(BuildContext context) {
@@ -243,7 +237,5 @@ class ForceFocusWatcher extends SingleChildRenderObjectWidget {
 }
 
 class FocusWatcherIgnoreRenderBox extends RenderPointerListener {}
+
 class FocusWatcherForceRenderBox extends RenderPointerListener {}
-
-
-
